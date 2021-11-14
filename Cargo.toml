@@ -1,0 +1,20 @@
+[package]
+name = "dks"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jörg Sischka <sischcode@gmx.net>"]
+description = "'dks' stands for 'Decode Kubernetes Secret' and does just that. It decodes the base64 encoded part of a Kubernetes Secret, which is the 'data' block in the YAML."
+readme = "README.md"
+license = "MIT"
+license-file = "license"
+keywords = ["kubernetes", "secret", "k8s", "k8s secret"]
+
+[dependencies]
+yaml-rust = "0.4"
+base64 = "0.13.0"
+linked-hash-map = "0.5.4"
+
+[profile.release]
+opt-level = 'z'     # Optimize for size.
+lto = true          # Enable Link Time Optimization
+codegen-units = 1   # Reduce number of codegen units to increase optimizations.
