@@ -32,8 +32,8 @@ data:
 Which is, the inputted secret, but with a decoded `data` block.
 
 # Usage
-* `kubectl get secret db-user-pass |dks`
-* `kubectl get secret db-user-pass |dks |less` or 
+* `kubectl get secret db-user-pass -o yaml |dks`
+* `kubectl get secret db-user-pass -o yaml |dks |less` or 
 * `cat <k8s-secret.yaml> |dks > my-decoded-k8s-secret.yml` or ...
 
 # Compiling
