@@ -1,6 +1,6 @@
 [package]
 name = "dks"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["Jörg Sischka <sischcode@gmx.net>"]
 description = "'dks' stands for 'Decode Kubernetes Secret' and does just that. It decodes the base64 encoded part of a Kubernetes Secret, which is the 'data' block in the YAML."

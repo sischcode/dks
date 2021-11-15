@@ -70,7 +70,9 @@ fn decode_k8s_secret_yaml_to(yaml_str: &str) -> String {
     // Write yaml to tmp buffer string
     let mut out_str_emitter = String::new();
     let mut emitter = YamlEmitter::new(&mut out_str_emitter);
-    emitter.dump(&decoded_out_yaml).unwrap(); // dump the YAML object to a String
+    emitter
+        .dump(&decoded_out_yaml)
+        .expect("could not write output YAML to buffer (String)"); // dump the YAML object to a String
 
     // Clean output before return
     out_str_emitter
@@ -87,7 +89,7 @@ fn main() {
         let mut input_line = String::new();
         match io::stdin().read_line(&mut input_line) {
             Ok(len) => {
-                if len == 0 {
+                if len == 0 || &input_line == "\n" || &input_line == "\r" || &input_line == "\r\n" {
                     break;
                 }
                 input_buf.push_str(input_line.as_str());
@@ -99,6 +101,10 @@ fn main() {
             }
         }
     }
+    if input_buf.len() == 0 {
+        return;
+    }
+
     // Do magic
     let out_string_cleaned = decode_k8s_secret_yaml_to(&input_buf);
     // Write to stdout
