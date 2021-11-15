@@ -48,18 +48,16 @@ Enjoy your binary at `dks/target/release/dks`
 (windows-gnu is compatible with the GCC/MinGW ABI)
 1. `git clone https://github.com/sischcode/dks.git`
 2. `cd dks`
-3. `docker build -t dks -f Dockerfile .`
-4. Change to your paths and run: `docker run --rm -v "$PWD":/path/to/dks -w /path/to/dks dks cargo build --release --target=x86_64-pc-windows-gnu`
+3. `docker build -t dks:0.1.1 -f Dockerfile .`
+4. Change to your destination path and run: `docker create -ti --name dks_build dks:0.1.1 bash && docker cp dks_build:/dks/build/dks.exe <your-dest-path-for-binary> && docker rm -f dks_build`
 
-Enjoy your binary at `/path/to/dks/target/x86_64-pc-windows-gnu`
 
 ## For Linux, using Docker - no Rust installation required
 1. `git clone https://github.com/sischcode/dks.git`
 2. `cd dks`
-3. `docker build -t dks -f Dockerfile .`
-4. Change to your paths and run: `docker run --rm -v "$PWD":/path/to/dks -w /path/to/dks dks cargo build --release --target=x86_64-unknown-linux-gnu && chown -R $(id -u):$(id -g) target`
+3. `docker build -t dks:0.1.1 -f Dockerfile .`
+4. Change to your destination path and run: `docker create -ti --name dks_build dks:0.1.1 bash && docker cp dks_build:/dks/build/dks <your-dest-path-for-binary> && docker rm -f dks_build`
 
-Enjoy your binary at `/path/to/dks/target/x86_64-unknown-linux-gnu`
 
 # Tests
 Rudimentary tests are available. Run `cargo test` to see the results...
