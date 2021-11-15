@@ -4,14 +4,24 @@ FROM liuchong/rustup:stable
 WORKDIR /dks
 COPY . .
 
-# RUN chmod -R 755 /root/.cargo/bin
-
-# Linux
-RUN mkdir -p target/x86_64-unknown-linux-gnu && chmod -R 755 target/x86_64-unknown-linux-gnu
-RUN rustup toolchain install stable-x86_64-unknown-linux-gnu && rustup target add x86_64-unknown-linux-gnu
-
 # Windows (GNU)
 RUN rustup toolchain install stable-x86_64-pc-windows-gnu && rustup target add x86_64-pc-windows-gnu
 RUN apt-get update && apt-get -y install mingw-w64
-# may be needed on WSL 2.0
+# Windows - may be needed on WSL 2.0
 RUN apt-get -y install build-essential clang cmake
+
+# Linux (GNU)
+RUN rustup toolchain install stable-x86_64-unknown-linux-gnu && rustup target add x86_64-unknown-linux-gnu
+
+# BUILD
+RUN mkdir -p /dks/build
+
+RUN cargo build --release --target=x86_64-pc-windows-gnu
+RUN cp target/x86_64-pc-windows-gnu/release/dks.exe /dks/build
+RUN ls -lah target/x86_64-pc-windows-gnu/release
+
+RUN cargo build --release --target=x86_64-unknown-linux-gnu
+RUN cp target/x86_64-unknown-linux-gnu/release/dks /dks/build
+RUN ls -lah target/x86_64-unknown-linux-gnu/release
+
+RUN ls -lah /dks/build
