@@ -36,27 +36,27 @@ Which is, the inputted secret, but with a decoded `data` block.
 * `kubectl get secret db-user-pass -o yaml |dks |less` or 
 * `cat <k8s-secret.yaml> |dks > my-decoded-k8s-secret.yml` or ...
 
-# Compiling
-## With Rust already installed. (win/linux)
+# Building from src
+## For Windows and Linux with Rust already installed.
 1. `git clone https://github.com/sischcode/dks.git`
 2. `cd dks`
 3. `cargo build --release`
 
 Enjoy your binary at `dks/target/release/dks`
 
-## For Windows, using Docker - no Rust installation required
+## For various platforms - no Rust installation required
+### Windows (x86_64)
 (windows-gnu is compatible with the GCC/MinGW ABI)
 1. `git clone https://github.com/sischcode/dks.git`
 2. `cd dks`
-3. `docker build -t dks:0.1.1 -f Dockerfile .`
-4. Change to your destination path and run: `docker create -ti --name dks_build dks:0.1.1 bash && docker cp dks_build:/dks/build/dks.exe <your-dest-path-for-binary> && docker rm -f dks_build`
+3. `docker build -t dks:0.2.0-x86_64-pc-windows-gnu -f build/x86_64-pc-windows-gnu/Dockerfile .`
+4. `docker create -ti --name dks_build dks:0.2.0-x86_64-pc-windows-gnu bash && docker cp dks_build:/dks/build/dks_windows_x86_64.tar.gz . && docker rm -f dks_build`
 
-
-## For Linux, using Docker - no Rust installation required
+### Linux (x86_64)
 1. `git clone https://github.com/sischcode/dks.git`
 2. `cd dks`
-3. `docker build -t dks:0.1.1 -f Dockerfile .`
-4. Change to your destination path and run: `docker create -ti --name dks_build dks:0.1.1 bash && docker cp dks_build:/dks/build/dks <your-dest-path-for-binary> && docker rm -f dks_build`
+3. `docker build -t dks:0.2.0-x86_64-unknown-linux-gnu -f build/x86_64-unknown-linux-gnu/Dockerfile .`
+4. `docker create -ti --name dks_build dks:0.2.0-x86_64-unknown-linux-gnu bash && docker cp dks_build:/dks/build/dks_linux_x86_64.tar.gz . && docker rm -f dks_build`
 
 
 # Tests
