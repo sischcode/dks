@@ -1,4 +1,5 @@
 use base64::decode;
+use clap::App;
 use linked_hash_map::LinkedHashMap;
 use std::io;
 use std::io::Write;
@@ -83,6 +84,13 @@ fn decode_k8s_secret_yaml_to(yaml_str: &str) -> String {
 }
 
 fn main() {
+    // Opts / help
+    App::new("dks - Decode Kubernetes Secret")
+        .version("0.2.0")
+        .author("Jörg S. <sischcode@gmx.net>")
+        .about("Decodes the `data` section of a k8s secret, returning the secret in full plain text. Just pipe something into it!")
+        .get_matches();
+
     // Read input from stdin
     let mut input_buf = String::new();
     loop {
