@@ -49,14 +49,14 @@ Enjoy your binary at `dks/target/release/dks`
 (windows-gnu is compatible with the GCC/MinGW ABI)
 1. `git clone https://github.com/sischcode/dks.git`
 2. `cd dks`
-3. `docker build -t dks:0.2.0-x86_64-pc-windows-gnu -f build/x86_64-pc-windows-gnu/Dockerfile .`
-4. `docker create -ti --name dks_build dks:0.2.0-x86_64-pc-windows-gnu bash && docker cp dks_build:/dks/build/dks_windows_x86_64.tar.gz . && docker rm -f dks_build`
+3. `docker build -t dks:0.3.0-x86_64-pc-windows-gnu -f build/x86_64-pc-windows-gnu/Dockerfile .`
+4. `docker create -ti --name dks_build dks:0.3.0-x86_64-pc-windows-gnu bash && docker cp dks_build:/dks/build/dks_windows_x86_64.tar.gz . && docker rm -f dks_build`
 
 ### Linux (x86_64)
 1. `git clone https://github.com/sischcode/dks.git`
 2. `cd dks`
-3. `docker build -t dks:0.2.0-x86_64-unknown-linux-gnu -f build/x86_64-unknown-linux-gnu/Dockerfile .`
-4. `docker create -ti --name dks_build dks:0.2.0-x86_64-unknown-linux-gnu bash && docker cp dks_build:/dks/build/dks_linux_x86_64.tar.gz . && docker rm -f dks_build`
+3. `docker build -t dks:0.3.0-x86_64-unknown-linux-gnu -f build/x86_64-unknown-linux-gnu/Dockerfile .`
+4. `docker create -ti --name dks_build dks:0.3.0-x86_64-unknown-linux-gnu bash && docker cp dks_build:/dks/build/dks_linux_x86_64.tar.gz . && docker rm -f dks_build`
 
 
 # Tests
