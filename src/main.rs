@@ -6,24 +6,14 @@ use std::io::Write;
 use std::str;
 use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
 
-/// Get part of a yaml, based on a &str key.
-fn get_yaml_part_of<'a, 'b>(src: &'a Yaml, key: &'b str) -> &'a Yaml {
-    src.as_hash()
-        .expect("cannot properly read yaml as_hash")
-        .iter()
-        .find(|(k, _)| k.as_str().expect("key could not be read/converted as_str") == key) // search key
-        .expect("expected data key block to be present")
-        .1 // take value of "data" (i.e. the hashmap)
-}
-
 // Replace a certain block in a YAML, identified by a key, with a new/replacement block
-fn replace_in_yaml(orig: &Yaml, replace_key: &str, replace_val: &Yaml) -> Yaml {
+fn replace_in_yaml(orig: &Yaml, new_data_val: &Yaml) -> Yaml {
     // Construct new yaml, with our decoded values
     let mut out_all = LinkedHashMap::new();
     for (k, v) in orig.as_hash().expect("cannot properly read yaml as_hash") {
         match k {
-            Yaml::String(k_str) if k_str == replace_key => {
-                out_all.insert(k.clone(), replace_val.clone())
+            Yaml::String(k_str) if k_str == "data" => {
+                out_all.insert(Yaml::String("stringData".into()), new_data_val.clone())
             }
             _ => out_all.insert(k.clone(), v.clone()),
         };
@@ -46,15 +36,9 @@ fn strip_crlf_inplace(src: &mut String) {
     }
 }
 
-fn decode_k8s_secret_yaml_to(yaml_str: &str) -> String {
-    // Load our string yaml we read from stdin
-    let yaml_docs = YamlLoader::load_from_str(yaml_str).expect("could not load yaml from &str");
-    let yaml_doc = &yaml_docs[0]; // just take the first one...
-    let data_key = "data"; // this is the block in the yaml doc we want to replace
-
+fn decode_k8s_secret_data(yaml_data: &Yaml) -> Yaml {
     let mut dec_data_lhm = LinkedHashMap::new();
-    let data_block = get_yaml_part_of(yaml_doc, data_key);
-    data_block
+    yaml_data
         .as_hash() // as a hash
         .expect("could not get data section as_hash")
         .iter()
@@ -63,10 +47,12 @@ fn decode_k8s_secret_yaml_to(yaml_str: &str) -> String {
             strip_crlf_inplace(&mut decoded_val);
             dec_data_lhm.insert(k.clone(), Yaml::from_str(&decoded_val));
         });
-    let decoded_data_block = Yaml::Hash(dec_data_lhm);
+    Yaml::Hash(dec_data_lhm)
+}
 
-    // Construct new yaml, with our decoded values
-    let decoded_out_yaml = replace_in_yaml(yaml_doc, data_key, &decoded_data_block);
+fn decode_k8s_secret(yaml_doc: &Yaml) -> String {
+    let decoded_data_yaml = decode_k8s_secret_data(&yaml_doc["data"]);
+    let decoded_out_yaml = replace_in_yaml(yaml_doc, &decoded_data_yaml);
 
     // Write yaml to tmp buffer string
     let mut out_str_emitter = String::new();
@@ -86,7 +72,7 @@ fn decode_k8s_secret_yaml_to(yaml_str: &str) -> String {
 fn main() {
     // Opts / help
     App::new("dks - Decode Kubernetes Secret")
-        .version("0.2.0")
+        .version("0.3.0")
         .author("Jörg S. <sischcode@gmx.net>")
         .about("Decodes the `data` section of a k8s secret, returning the secret in full plain text. Just pipe something into it!")
         .get_matches();
@@ -113,8 +99,11 @@ fn main() {
         return;
     }
 
+    let yaml_docs = YamlLoader::load_from_str(&input_buf).expect("could not load yaml from String");
+    let yaml_doc = &yaml_docs[0]; // just take the first one...
+
     // Do magic
-    let out_string_cleaned = decode_k8s_secret_yaml_to(&input_buf);
+    let out_string_cleaned = decode_k8s_secret(yaml_doc);
     // Write to stdout
     io::stdout()
         .lock()
@@ -151,7 +140,7 @@ mod tests {
           annotations:
             kubernetes.io/service-account.name: "sa-name"
         type: kubernetes.io/service-account-token
-        data:
+        stringData:
           extra: bar
         "#;
         String::from(secret)
@@ -202,7 +191,7 @@ mod tests {
         );
         let exp_yaml = Yaml::Hash(exp_tmp);
 
-        assert_eq![&exp_yaml, get_yaml_part_of(yaml_doc, "data")];
+        assert_eq![&exp_yaml, &yaml_doc["data"]];
     }
 
     #[test]
@@ -240,7 +229,7 @@ mod tests {
         );
         let exp_yaml = Yaml::Hash(exp_tmp);
 
-        assert_eq![&exp_yaml, get_yaml_part_of(yaml_doc, "data")];
+        assert_eq![&exp_yaml, &yaml_doc["data"]];
     }
 
     #[test]
@@ -256,7 +245,7 @@ mod tests {
         );
         let exp_yaml = Yaml::Hash(exp_tmp);
 
-        assert_eq![&exp_yaml, get_yaml_part_of(yaml_doc, "data")];
+        assert_eq![&exp_yaml, &yaml_doc["data"]];
     }
 
     #[test]
@@ -272,16 +261,20 @@ mod tests {
         );
         let replacement_yaml = Yaml::Hash(repl_tmp);
 
-        let replaced_doc = replace_in_yaml(yaml_doc, "data", &replacement_yaml);
+        let replaced_doc = replace_in_yaml(yaml_doc, &replacement_yaml);
 
-        assert_eq![&replacement_yaml, get_yaml_part_of(&replaced_doc, "data")];
+        assert_eq![&replacement_yaml, &replaced_doc["stringData"]];
     }
 
     #[test]
     fn test_decode_k8s_secret_yaml_to_1() {
+        let yaml_docs_secret1 =
+            YamlLoader::load_from_str(&get_secret_1()).expect("could not load yaml from String");
+        let yaml_doc_secret1 = &yaml_docs_secret1[0]; // just take the first one...
+
         assert_eq![
             YamlLoader::load_from_str(&get_secret_1_dec()),
-            YamlLoader::load_from_str(&decode_k8s_secret_yaml_to(&get_secret_1()))
+            YamlLoader::load_from_str(&decode_k8s_secret(yaml_doc_secret1))
         ];
     }
 }
