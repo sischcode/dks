@@ -26,7 +26,7 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: "sa-name"
 type: kubernetes.io/service-account-token
-data:
+stringData:
   extra: bar
 ```
 Which is, the inputted secret, but with a decoded `data` block.
